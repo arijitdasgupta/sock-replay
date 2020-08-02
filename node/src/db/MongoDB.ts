@@ -4,9 +4,8 @@ import { Config } from "../config/Config"
 
 export class MongoDB {
     private url: string
-    private logger: Logger
 
-    constructor(config: Config, logger: Logger) {
+    constructor(private config: Config, private logger: Logger) {
         this.url = config.dbUrl
         this.logger = logger.child({class: "MognoDB"})
     }
@@ -14,7 +13,9 @@ export class MongoDB {
     public async connect() {
         return MongoClient.connect(this.url).then((client) => {
             this.logger.info("Connected to MongoDB")
-            return client
+            const db = client.db(this.config.dbName)
+            this.logger.info(`Set database to ${this.config.dbName}`)
+            return db
         })
     }
 }

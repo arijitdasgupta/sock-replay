@@ -20,7 +20,14 @@ export class Metrics {
 
     getCounter(name: string, help: string) {
         return new this.client.Counter({
-            name: `${name}`,
+            name,
+            help
+        })
+    }
+
+    getGauge(name: string, help: string) {
+        return new this.client.Gauge({
+            name,
             help
         })
     }

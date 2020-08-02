@@ -9,6 +9,8 @@ import { MongoDB } from "./db/MongoDB"
 import { Config } from "./config/Config"
 import { App } from "./http/App"
 import { Metrics } from "./metrics/Metrics"
+import { Socket } from "./socket/Socket"
+import { SocketApp } from "./socket/SocketApp"
 
 const run = async () => {
     // Configuration
@@ -16,7 +18,8 @@ const run = async () => {
 
     // Logger
     const logger = createLogger({
-        name: config.serviceName
+        name: config.serviceName,
+        level: "debug"
     })
 
     // Metrics
@@ -24,9 +27,13 @@ const run = async () => {
     
     // Deps
     const dbClient = await new MongoDB(config, logger).connect()
-    const app = new App(config, logger, metrics)
+
+    // Initiate the socket application
+    const socketServer = new Socket(config, logger)
+    new SocketApp(await socketServer.run(), metrics, logger)
 
     // Run the HTTP Application
+    const app = new App(config, logger, metrics)
     await app.run()
 
     return { logger }
