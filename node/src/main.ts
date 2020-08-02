@@ -15,12 +15,13 @@ const run = async () => {
 
     // Configuration
     const config = new Config(process.env)
-    // Dependencies
+    
+    // Deps
     const dbClient = await new MongoDB(config, logger).connect()
     const app = new App(config, logger)
 
     // Run the HTTP Application
-    app.run()
+    await app.run()
 
     return { logger }
 }

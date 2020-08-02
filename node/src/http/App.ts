@@ -11,19 +11,26 @@ export class App {
         this.app = express()
         this.config = config
         this.logger = logger.child({class: "App"})
-        this.setRoutes()
+        this.setRoutes(this.app)
     }
 
-    private setRoutes() {
-        this.app.get("/", (req: express.Request, res: express.Response) => {
+    private setRoutes(app: express.Application) {
+        app.get("/", (req: express.Request, res: express.Response) => {
             this.logger.info("Got request")
             res.send("Hello World")
         })
     }
 
-    public run() {
-        this.app.listen(this.config.httpPort, () => {
-            this.logger.info(`Listening on ${this.config.httpPort}`)
+    public async run() {
+        return new Promise((resolve, reject) => {
+            try {
+                this.app.listen(this.config.httpPort, () => {
+                    this.logger.info(`HTTP App Listening on ${this.config.httpPort}`)
+                    resolve()
+                })
+            } catch(e) {
+                reject(e)
+            }
         })
     }
 }
