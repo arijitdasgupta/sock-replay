@@ -1,0 +1,36 @@
+{
+  "name": "sock-replay",
+  "version": "0.5.0",
+  "description": "A replay-able websocket events manager, based on nodejs",
+  "main": "index.js",
+  "scripts": {
+    "run": "yarn run build && node ./build/main.js | bunyan",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon -e ts --exec \"yarn run run || exit 1\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arijitdasgupta/sock-replay.git"
+  },
+  "author": "Arijit Dasgupta",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arijitdasgupta/sock-replay/issues"
+  },
+  "homepage": "https://github.com/arijitdasgupta/sock-replay#readme",
+  "dependencies": {
+    "@types/bunyan": "^1.8.6",
+    "@types/express": "^4.17.7",
+    "@types/mongodb": "^3.5.25",
+    "bunyan": "^1.8.14",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.0",
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.7"
+  },
+  "devDependencies": {
+    "tslint": "^6.1.3"
+  }
+}
