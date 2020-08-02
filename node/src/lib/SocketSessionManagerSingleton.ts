@@ -23,7 +23,7 @@ export class SocketSessionManagerSingleton {
 
     attach(socket: socketio.Socket) {
         socket.on("initiate", (data) => {
-            if (!!data && !!data.id && !!this.socketMap.get(data.id)) {
+            if (!!data && !!data.id && this.doesSessionExist(data.id)) {
                 this.socketMap.set(data.id, socket)
                 const sessionId = data.id
                 this.logger.info(`old session connected: ${sessionId}`)
