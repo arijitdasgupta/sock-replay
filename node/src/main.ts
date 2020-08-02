@@ -11,15 +11,16 @@ import { App } from "./http/App"
 import { Metrics } from "./metrics/Metrics"
 
 const run = async () => {
-    const logger = createLogger({
-        name: "sock-replay"
-    })
-
     // Configuration
     const config = new Config(process.env)
 
+    // Logger
+    const logger = createLogger({
+        name: config.serviceName
+    })
+
     // Metrics
-    const metrics = new Metrics()
+    const metrics = new Metrics(config, logger)
     
     // Deps
     const dbClient = await new MongoDB(config, logger).connect()
