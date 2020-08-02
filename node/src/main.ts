@@ -9,8 +9,8 @@ import { MongoDB } from "./db/MongoDB"
 import { Config } from "./config/Config"
 import { App } from "./http/App"
 import { Metrics } from "./metrics/Metrics"
-import { Socket } from "./socket/Socket"
 import { SocketApp } from "./socket/SocketApp"
+import { SocketSessionManagerSingleton } from "./lib/SocketSessionManagerSingleton"
 
 const run = async () => {
     // Configuration
@@ -29,11 +29,12 @@ const run = async () => {
     const dbClient = await new MongoDB(config, logger).connect()
 
     // Initiate the socket application
-    const socketServer = new Socket(config, logger)
-    new SocketApp(await socketServer.run(), metrics, logger)
+    const socketSessionManager = new SocketSessionManagerSingleton(logger)
+    const socketApp = new SocketApp(config, logger, socketSessionManager)
+    await socketApp.run()
 
     // Run the HTTP Application
-    const app = new App(config, logger, metrics)
+    const app = new App(config, logger, metrics, socketSessionManager)
     await app.run()
 
     return { logger }
