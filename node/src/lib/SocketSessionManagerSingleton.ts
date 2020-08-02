@@ -19,6 +19,11 @@ export class SocketSessionManagerSingleton {
         return socket.disconnected
     }
 
+    private deleteSession(sessionId: string, sock: socketio.Socket): void {
+        this.socketMap.delete(sessionId)
+        sock.disconnect()
+    }
+
     doesSessionExist(sessionId: string): boolean {
         return !!this.socketMap.get(sessionId)
     }
@@ -29,7 +34,7 @@ export class SocketSessionManagerSingleton {
             if (this.isSocketDisconnected(sock)) {
                 this.disconnectedSocketCounter.inc()
                 this.logger.debug(`Attempted to push to disconnected socket. Removing socket from map`)
-                this.socketMap.delete(sessionId)
+                this.deleteSession(sessionId, sock)
             } else {
                 this.logger.debug(`Sending message to ${sessionId}: ${JSON.stringify(data)}`)
                 sock.emit("msg", data)
@@ -44,11 +49,11 @@ export class SocketSessionManagerSingleton {
             if (!!data && !!data.id && this.doesSessionExist(data.id)) {
                 this.socketMap.set(data.id, socket)
                 const sessionId = data.id
-                this.logger.info(`old session connected: ${sessionId}`)
+                this.logger.debug(`Old session connected: ${sessionId}`)
                 socket.emit("ack", {id: sessionId})
             } else {   
                 const sessionId = uuidv4()
-                this.logger.info(`new session connected: ${sessionId}`)
+                this.logger.debug(`New session connected: ${sessionId}`)
                 this.socketMap.set(sessionId, socket)
                 socket.emit("ack", {id: sessionId})
             }
