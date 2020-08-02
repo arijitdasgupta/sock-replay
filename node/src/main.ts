@@ -29,7 +29,7 @@ const run = async () => {
     const dbClient = await new MongoDB(config, logger).connect()
 
     // Initiate the socket application
-    const socketSessionManager = new SocketSessionManagerSingleton(logger)
+    const socketSessionManager = new SocketSessionManagerSingleton(logger, metrics)
     const socketApp = new SocketApp(config, logger, socketSessionManager)
     await socketApp.run()
 
