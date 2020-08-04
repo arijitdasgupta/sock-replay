@@ -11,6 +11,9 @@ import { App } from "./http/App"
 import { Metrics } from "./metrics/Metrics"
 import { SocketApp } from "./socket/SocketApp"
 import { SocketSessionManagerSingleton } from "./lib/SocketSessionManagerSingleton"
+import { PushService } from "./lib/PushService"
+import { MessagesRepository } from "./db/MessagesRepository"
+import { SessionRepository } from "./db/SessionRepository"
 
 const run = async () => {
     // Configuration
@@ -27,14 +30,16 @@ const run = async () => {
     
     // Deps
     const dbClient = await new MongoDB(config, logger).connect()
+    const messagesRepository = new MessagesRepository(dbClient, config, logger)
+    const socketSessionManager = new SocketSessionManagerSingleton(logger, metrics, messagesRepository)
+    const pushService = new PushService(messagesRepository)
 
     // Initiate the socket application
-    const socketSessionManager = new SocketSessionManagerSingleton(logger, metrics)
     const socketApp = new SocketApp(config, logger, socketSessionManager)
     await socketApp.run()
 
     // Run the HTTP Application
-    const app = new App(config, logger, metrics, socketSessionManager)
+    const app = new App(config, logger, metrics, pushService)
     await app.run()
 
     return { logger }

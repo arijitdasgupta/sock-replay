@@ -6,11 +6,15 @@ export class Config {
     public serviceName: string
     public dbName: string
     public socketPort: number
+    public sessionsCollectionName: string;
+    public messagesCollectionName: string;
 
     constructor(env: any) {
         this.dbUrl = env.DB_URL
         this.serviceName = env.SERVICE_NAME || "sock-replay"
         this.dbName = env.MONGO_DB_NAME || "localdb"
+        this.sessionsCollectionName = env.MONGO_SESSION_COLLECTION || "sessions"
+        this.messagesCollectionName = env.MONGO_SESSION_COLLECTION || "messages"
         this.httpPort = isNaN(parseInt(env.HTTP_PORT)) ? 8080 : parseInt(env.HTTP_PORT)
         this.socketPort = isNaN(parseInt(env.SOCKET_PORT)) ? 9090 : parseInt(env.SOCKET_PORT)
     } 
