@@ -11,9 +11,7 @@ export class MongoDB {
     }
 
     public async connect() {
-        return MongoClient.connect(this.url, {
-            useUnifiedTopology: true
-        }).then((client) => {
+        return MongoClient.connect(this.url).then((client) => {
             this.logger.info("Connected to MongoDB")
             const db = client.db(this.config.dbName)
             this.logger.info(`Set Mongo database to ${this.config.dbName}`)

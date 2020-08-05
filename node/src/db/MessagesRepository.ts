@@ -26,13 +26,4 @@ export class MessagesRepository {
             message
         })
     }
-
-    attachStreamingCursor = (callback: (sessionId: string, message: string) => void) => {
-        return this.mongoDb.collection(this.config.messagesCollectionName).watch({}).on("change", (next) => {
-            if (next.operationType === 'insert') {
-                this.logger.debug(next.fullDocument)
-                callback(next.fullDocument.sessionId, next.fullDocument.message)
-            }
-        })
-    }
 }

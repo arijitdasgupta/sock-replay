@@ -8,6 +8,8 @@ export class Config {
     public socketPort: number
     public sessionsCollectionName: string;
     public messagesCollectionName: string;
+    public redisPort: number;
+    public redisHost: string;
 
     constructor(env: any) {
         this.dbUrl = env.DB_URL
@@ -17,5 +19,7 @@ export class Config {
         this.messagesCollectionName = env.MONGO_SESSION_COLLECTION || "messages"
         this.httpPort = isNaN(parseInt(env.HTTP_PORT)) ? 8080 : parseInt(env.HTTP_PORT)
         this.socketPort = isNaN(parseInt(env.SOCKET_PORT)) ? 9090 : parseInt(env.SOCKET_PORT)
+        this.redisHost = env.REDIS_HOST
+        this.redisPort = isNaN(env.REDIS_PORT) ? 6379 : parseInt(env.REDIS_PORT)
     } 
 }

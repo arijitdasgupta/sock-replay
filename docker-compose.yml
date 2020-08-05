@@ -2,45 +2,27 @@
 version: '3.1'
 
 services:
-  mongo1:
-    hostname: mongo1
-    container_name: localmongo1
+  mongo:
     image: mongo
     restart: always
-    expose:
-      - 27017
     ports:
-      - 27011:27017
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "myRepl" ]
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: localdb
-  mongo2:
-    hostname: mongo2
-    container_name: localmongo2
-    image: mongo
+  mongo-express:
+    image: mongo-express
     restart: always
-    expose:
-      - 27017
     ports:
-      - 27012:27017
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "myRepl" ]
+      - 8081:8081
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: localdb
-  mongo3:
-    hostname: mongo3
-    container_name: localmongo3
-    image: mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      version: "3"
+  redis:
+    image: redis
     restart: always
-    expose:
-      - 27017
     ports:
-      - 27013:27017
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "myRepl" ]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: localdb
+      - 6379:6379
+  

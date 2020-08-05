@@ -13,7 +13,7 @@ import { SocketApp } from "./socket/SocketApp"
 import { SocketSessionManagerSingleton } from "./lib/SocketSessionManagerSingleton"
 import { PushService } from "./lib/PushService"
 import { MessagesRepository } from "./db/MessagesRepository"
-import { SessionRepository } from "./db/SessionRepository"
+import { Redis } from "./redis/Redis"
 
 const run = async () => {
     // Configuration
@@ -30,6 +30,7 @@ const run = async () => {
     
     // Deps
     const dbClient = await new MongoDB(config, logger).connect()
+    const redis = new Redis(config, logger)
     const messagesRepository = new MessagesRepository(dbClient, config, logger)
     const socketSessionManager = new SocketSessionManagerSingleton(logger, metrics, messagesRepository)
     const pushService = new PushService(messagesRepository)

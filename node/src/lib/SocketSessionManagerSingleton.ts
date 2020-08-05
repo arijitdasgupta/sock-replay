@@ -3,7 +3,6 @@ import Logger from "bunyan"
 import prom from "prom-client"
 import { v4 as uuidv4 } from "uuid";
 import { Metrics } from "../metrics/Metrics";
-import { SessionRepository } from "../db/SessionRepository";
 import { MessagesRepository } from "../db/MessagesRepository";
 
 export class SocketSessionManagerSingleton {
@@ -14,9 +13,7 @@ export class SocketSessionManagerSingleton {
     constructor(private logger: Logger, metrics: Metrics, private messagesRepo: MessagesRepository) {
         this.socketMap = new Map<string, socketio.Socket>()
         this.disconnectedSocketCounter = metrics.getCounter("disconnected_socket_push", "Attempts to emit to disconnected socket")
-        this.logger = this.logger.child({class: this.className})
-
-        this.messagesRepo.attachStreamingCursor(this.sendToSession)
+        this.logger = this.logger.child({class: this.className})        
     }
 
     private isSocketDisconnected = (socket: socketio.Socket): boolean => {
