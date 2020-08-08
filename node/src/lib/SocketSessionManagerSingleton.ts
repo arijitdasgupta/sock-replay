@@ -79,7 +79,7 @@ export class SocketSessionManagerSingleton {
         }
     }
 
-    dropSocket = (socket: WebSocket) => {
+    private dropSocket = (socket: WebSocket) => {
         try {
             const [sessionId] = Array.from(this.socketMap.entries()).
                 find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
@@ -110,10 +110,11 @@ export class SocketSessionManagerSingleton {
 
                 clearTimeout(dropSocketTimer)
 
-                if (parsedMessage.messageType === MessageType.NULL) {
+                if (parsedMessage.messageType === MessageType.NULL) { 
                     const newSesh = this.newSession()
                     await this.messagesRepo.addSession(newSesh)
                     this.socketMap.set(newSesh.id, new SocketHorizon(socket, newSesh))
+
                     this.forwardService.forward(new InitialMessage(newSesh))
                 } else if (parsedMessage.messageType === MessageType.INITIAL) {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
@@ -122,8 +123,8 @@ export class SocketSessionManagerSingleton {
                         if (this.socketMap.get(parsedMessage.sessionId.id)) {
                             this.socketMap.get(parsedMessage.sessionId.id).socket.close()
                         }
-
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
+
                         this.forwardService.forward(parsedMessage)
                     } else {
                         this.unknownSocketCounter.inc()
