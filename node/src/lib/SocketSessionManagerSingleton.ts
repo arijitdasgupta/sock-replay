@@ -51,6 +51,8 @@ export class SocketSessionManagerSingleton {
         this.logger.info("Started ticker")
     }
 
+    resetHorizon = (sessionId: SessionId) => this.socketMap.set(sessionId.id, this.socketMap.get(sessionId.id).setHorizon(0))
+
     attach = (socket: WebSocket) => {
         const dropSocketTimer = setTimeout(() => {
             this.logger.debug("Dropping socket due to inactivity")
@@ -72,7 +74,7 @@ export class SocketSessionManagerSingleton {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
                     } else {
-                        socket.close() // Drops connection if the session is unknown to the instance
+                        socket.close() // Drops connection if the session is unknown
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
                     // TODO: Forward messages

@@ -3,9 +3,10 @@ import mongo from "mongodb"
 import { SessionNotFound } from "../utils/errors"
 import { MessagesRepository } from "../db/MessagesRepository"
 import { ForwardMessage, SessionId } from "../../../common/lib/messages"
+import { SocketSessionManagerSingleton } from "./SocketSessionManagerSingleton"
 
 export class PushService {
-    constructor(private messagesRepo: MessagesRepository) {}
+    constructor(private messagesRepo: MessagesRepository, private socketManager: SocketSessionManagerSingleton) {}
 
     async pushToSession(sessionId: SessionId, data: string) {
         return this.messagesRepo.addMessage(new ForwardMessage(
@@ -19,6 +20,7 @@ export class PushService {
     }
 
     async clearSession(sessiondId: SessionId) {
+        this.socketManager.resetHorizon(sessiondId)
         return this.messagesRepo.clearSession(sessiondId)
     }
 }

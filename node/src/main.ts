@@ -31,7 +31,7 @@ const run = async () => {
     const redis = new Redis(config, logger)
     const messagesRepository = new MessagesRepository(config, logger, redis.client)
     const socketSessionManager = new SocketSessionManagerSingleton(config, logger, metrics, messagesRepository)
-    const pushService = new PushService(messagesRepository)
+    const pushService = new PushService(messagesRepository, socketSessionManager)
 
     // Initiate the socket application
     const socketApp = new SocketApp(config, logger, socketSessionManager)
