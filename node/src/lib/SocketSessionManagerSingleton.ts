@@ -79,7 +79,7 @@ export class SocketSessionManagerSingleton {
         }
     }
 
-    dropSession = (socket: WebSocket) => {
+    dropSocket = (socket: WebSocket) => {
         try {
             const [sessionId] = Array.from(this.socketMap.entries()).
                 find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
@@ -139,7 +139,7 @@ export class SocketSessionManagerSingleton {
 
         socket.on("close", async () => {
             try {
-                this.dropSession(socket)
+                this.dropSocket(socket)
             } catch (e) {
                 this.uninitiatedSocketDropCounter.inc()
             }
