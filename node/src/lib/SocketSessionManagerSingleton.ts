@@ -66,6 +66,8 @@ export class SocketSessionManagerSingleton {
                 } else if (parsedMessage.messageType === MessageType.INITIAL) {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
+                    } else {
+                        socket.disconnect() // Drops connection if the session is unknown to the instance
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
                     // TODO: Forward messages
