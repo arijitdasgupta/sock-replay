@@ -13,6 +13,6 @@ export class Redis {
             port: config.redisPort
         })
         this.logger = this.logger.child({class: this.className})
-        this.logger.info("Connected to Redis")
+        this.logger.info(`Connected to Redis at ${this.config.redisHost}:${this.config.redisPort}`)
     }
 }

@@ -1,25 +1,21 @@
 import { parse } from "dotenv/types"
 
 export class Config {
-    public dbUrl: string
     public httpPort: number
     public serviceName: string
-    public dbName: string
     public socketPort: number
-    public sessionsCollectionName: string;
-    public messagesCollectionName: string;
     public redisPort: number;
     public redisHost: string;
+    public messagesNamespace: string;
+    public tickerInterval: number;
 
     constructor(env: any) {
-        this.dbUrl = env.DB_URL
         this.serviceName = env.SERVICE_NAME || "sock-replay"
-        this.dbName = env.MONGO_DB_NAME || "localdb"
-        this.sessionsCollectionName = env.MONGO_SESSION_COLLECTION || "sessions"
-        this.messagesCollectionName = env.MONGO_SESSION_COLLECTION || "messages"
         this.httpPort = isNaN(parseInt(env.HTTP_PORT)) ? 8080 : parseInt(env.HTTP_PORT)
         this.socketPort = isNaN(parseInt(env.SOCKET_PORT)) ? 9090 : parseInt(env.SOCKET_PORT)
         this.redisHost = env.REDIS_HOST
-        this.redisPort = isNaN(env.REDIS_PORT) ? 6379 : parseInt(env.REDIS_PORT)
+        this.redisPort = isNaN(env.REDIS_PORT) ? 6379 : parseInt(env.REDIS_PO)
+        this.tickerInterval = 1000 // TODO push to ENV
+        this.messagesNamespace = "session" // TODO push to ENV
     } 
 }

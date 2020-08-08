@@ -2,16 +2,15 @@ import mongo from "mongodb"
 
 import { SessionNotFound } from "../utils/errors"
 import { MessagesRepository } from "../db/MessagesRepository"
+import { ForwardMessage, SessionId } from "../../../common/lib/messages"
 
 export class PushService {
     constructor(private messagesRepo: MessagesRepository) {}
 
-    async pushToSession(sessionId: string, data: any) {
-        const singleMessage = await this.messagesRepo.findBySessionId(sessionId)
-        if (singleMessage) {
-            await this.messagesRepo.addToMessages(sessionId, 0, JSON.stringify(data))
-        } else {
-            throw new SessionNotFound(sessionId)
-        }
+    async pushToSession(sessionId: SessionId, data: string) {
+        return this.messagesRepo.addMessage(new ForwardMessage(
+            sessionId,
+            data
+        ))
     }
 }

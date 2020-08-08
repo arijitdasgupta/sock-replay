@@ -1,29 +1,41 @@
-import mongo from "mongodb"
+import { promisify } from 'util'
+
 import { Config } from "../config/Config"
 import Logger from "bunyan"
+import { RedisClient } from "redis"
+import { SessionId, InitialMessage, ForwardMessage, parseMessage } from "../../../common/lib/messages"
 
 export class MessagesRepository {
-    private mongoMessagesCollection: mongo.Collection
+    constructor(private config: Config, private logger: Logger, private redisClient: RedisClient) {}
 
-    constructor(private mongoDb: mongo.Db, private config: Config, private logger: Logger) {
-        this.mongoMessagesCollection = mongoDb.collection(config.messagesCollectionName)
+    private getKey = (sessionId: SessionId): string => {
+        return `${this.config.messagesNamespace}:${sessionId.id}`
     }
 
-    findBySessionId = (sessionId: string) => {
-        return this.mongoMessagesCollection.findOne({
-            sessionId
-        })
+    addSession = (sessionId: SessionId) => {
+        return promisify<string, string, any>(this.redisClient.rpush)
+            (this.getKey(sessionId), new InitialMessage(sessionId).toJSONString())
+        }
+
+    addMessage = (message: ForwardMessage) => {
+        return promisify<string, string, any>(this.redisClient.rpush)
+            (this.getKey(message.sessionId), message.toJSONString())
     }
 
-    addSession = (sessionId: string) => {
-        return this.mongoMessagesCollection.insertOne({sessionId, counter: 0})
+    getQueueLength = (sessionId: SessionId) => {
+        return promisify<string, number>(this.redisClient.llen)(this.getKey(sessionId))
     }
 
-    addToMessages = (sessionId: string, sequenceNumber: number, message: any) => {
-        return this.mongoMessagesCollection.insertOne({
-            sessionId,
-            sequenceNumber,
-            message
-        })
+    getMessages = (sessionId: SessionId, horizon: number, end: number) => {
+        return promisify<string, number, number, string[]>(this.redisClient.lrange)
+            (this.getKey(sessionId), horizon, end).then((messages) => {
+                return messages.map(parseMessage)
+            })
+    }
+
+    hasSession = async (sessionId: SessionId) => {
+        return !!(
+            await promisify<string, number>(this.redisClient.llen)(this.getKey(sessionId))
+        )
     }
 }

@@ -4,7 +4,7 @@
  - Integration tests?
  - Make a basic web ui to boot
  - Make sure replay works
- - Add Schema validation on HTTP messaging
+ - Have load metrics
 
 https://gist.github.com/asoorm/7822cc742831639c93affd734e97ce4f
 

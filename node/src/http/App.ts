@@ -8,6 +8,7 @@ import { Metrics } from "../metrics/Metrics"
 
 import { PushService } from "../lib/PushService"
 import { CustomErrors, ErrorTypes } from "../utils/errors"
+import { SessionId } from "../../../common/lib/messages"
 
 export class App {
     private app: express.Application
@@ -21,7 +22,7 @@ export class App {
 
         this.requestCounter = metrics.getCounter("http_req", "http-req")
 
-        this.app.use(bodyParser.json())
+        this.app.use(bodyParser.text())
         this.setRoutes(this.app)
     }
 
@@ -43,7 +44,7 @@ export class App {
         app.post("/push/:sessionId", async (req: express.Request, res: express.Response) => {
             const sid = req.params.sessionId
             try {
-                await this.pushService.pushToSession(sid, req.body)
+                await this.pushService.pushToSession(new SessionId(sid), req.body)
                 this.handleOk(res)
             } catch (e) {
                 this.handleErrors(e, res)

@@ -5,7 +5,6 @@ dotenv.config()
 
 import  { createLogger } from "bunyan"
 
-import { MongoDB } from "./db/MongoDB"
 import { Config } from "./config/Config"
 import { App } from "./http/App"
 import { Metrics } from "./metrics/Metrics"
@@ -29,10 +28,9 @@ const run = async () => {
     const metrics = new Metrics(config, logger)
     
     // Deps
-    const dbClient = await new MongoDB(config, logger).connect()
     const redis = new Redis(config, logger)
-    const messagesRepository = new MessagesRepository(dbClient, config, logger)
-    const socketSessionManager = new SocketSessionManagerSingleton(logger, metrics, messagesRepository)
+    const messagesRepository = new MessagesRepository(config, logger, redis.client)
+    const socketSessionManager = new SocketSessionManagerSingleton(config, logger, metrics, messagesRepository)
     const pushService = new PushService(messagesRepository)
 
     // Initiate the socket application
@@ -41,6 +39,7 @@ const run = async () => {
 
     // Run the HTTP Application
     const app = new App(config, logger, metrics, pushService)
+
     await app.run()
 
     return { logger }
