@@ -8,4 +8,4 @@
  - [ ] Have a consumer / producer queues instead of HTTP
  - [ ] Webhooks
  - [ ] In case of HTTP, response types
- - [ ] Change to WebSocket
+ - [x] Change to WebSocket
