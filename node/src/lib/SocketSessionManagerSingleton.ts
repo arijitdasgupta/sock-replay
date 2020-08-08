@@ -9,13 +9,14 @@ import { MessagesRepository } from "../db/MessagesRepository";
 import { parseMessage, MessageType, SessionId } from "../../../common/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
-import { SocketSessionNotFound } from "../utils/errors"
+import { SocketSessionNotFound, SocketNotAttached } from "../utils/errors"
 
 export class SocketSessionManagerSingleton {
     private socketMap: Map<string, SocketHorizon>
     private badSocketCounter: prom.Counter<string> 
     private unknownSocketCounter: prom.Counter<string> 
     private droppedSocketCounter: prom.Counter<string> 
+    private uninitiatedSocketDropCounter: prom.Counter<string> 
     private className = "SocketSessionManagerSingleton"
 
     constructor(private config: Config, private logger: Logger, metrics: Metrics, private messagesRepo: MessagesRepository) {
@@ -23,6 +24,7 @@ export class SocketSessionManagerSingleton {
         this.badSocketCounter = metrics.getCounter("bad_socket_counter", "Bad sockets")
         this.unknownSocketCounter = metrics.getCounter("unknown_socket_counter", "Unknown sockets")
         this.droppedSocketCounter = metrics.getCounter("dropped_socket_counter", "Sockets dropped")
+        this.uninitiatedSocketDropCounter = metrics.getCounter("uninitiated_socket_drop", "Uninitiated socket drop")
         this.logger = this.logger.child({class: this.className})
     }
 
@@ -76,11 +78,15 @@ export class SocketSessionManagerSingleton {
     }
 
     dropSession = (socket: WebSocket) => {
-        const [sessionId, _socket] = Array.from(this.socketMap.entries()).
+        try {
+            const [sessionId] = Array.from(this.socketMap.entries()).
             find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
-        this.socketMap.delete(sessionId)
-        this.droppedSocketCounter.inc()
-        this.logger.info(`Dropping session ${sessionId}`)
+            this.socketMap.delete(sessionId)
+            this.droppedSocketCounter.inc()
+            this.logger.info(`Dropping session ${sessionId}`)
+        } catch(e) {
+            throw new SocketNotAttached()
+        }
     }
 
     attach = (socket: WebSocket) => {
@@ -117,7 +123,12 @@ export class SocketSessionManagerSingleton {
         })
 
         socket.on("close", async () => {
-            this.dropSession(socket)
+            try {
+                this.dropSession(socket)
+            } catch (e) {
+                this.uninitiatedSocketDropCounter.inc()
+            }
+            
         })
     }
 }

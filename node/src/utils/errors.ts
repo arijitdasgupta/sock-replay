@@ -1,7 +1,8 @@
 import { SessionId } from "../../../common/lib/messages"
 
 export enum ErrorTypes {
-    SESSION_NOT_FOUND
+    SESSION_NOT_FOUND,
+    SOCKET_NOT_ATTACHED
 }
 
 export interface CustomErrors extends Error {
@@ -14,6 +15,15 @@ export class SocketSessionNotFound extends Error implements CustomErrors {
     constructor(sessionId: SessionId) {
         super(`Session: ${sessionId.id} not available`)
         this.errorType = ErrorTypes.SESSION_NOT_FOUND
+    }
+}
+
+export class SocketNotAttached extends Error implements CustomErrors {
+    public errorType: ErrorTypes
+
+    constructor() {
+        super(`Socket was never attached`)
+        this.errorType = ErrorTypes.SOCKET_NOT_ATTACHED
     }
 }
 

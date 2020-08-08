@@ -15,9 +15,9 @@ export class Config {
         this.httpPort = isNaN(parseInt(env.HTTP_PORT)) ? 8080 : parseInt(env.HTTP_PORT)
         this.socketPort = isNaN(parseInt(env.SOCKET_PORT)) ? 9090 : parseInt(env.SOCKET_PORT)
         this.redisHost = env.REDIS_HOST
-        this.redisPort = isNaN(env.REDIS_PORT) ? 6379 : parseInt(env.REDIS_PO)
+        this.redisPort = isNaN(parseInt(env.REDIS_PORT)) ? 6379 : parseInt(env.REDIS_PORT)
         this.tickerInterval = 1000 // TODO push to ENV
         this.messagesNamespace = "session" // TODO push to ENV
-        this.dropSocketTimeout = 10000
+        this.dropSocketTimeout = 10000 // TODO push to ENV
     } 
 }
