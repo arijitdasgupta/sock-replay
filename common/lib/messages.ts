@@ -38,7 +38,7 @@ export class InitialMessage implements Message {
     toJSONString = () => {
         return JSON.stringify({
             t: this.messageType.valueOf(),
-            s: this.sessionId,
+            s: this.sessionId.id,
             p: null
         })
     }
@@ -52,7 +52,7 @@ export class ForwardMessage implements Message {
     toJSONString = () => {
         return JSON.stringify({
             t: this.messageType.valueOf(),
-            s: this.sessionId,
+            s: this.sessionId.id,
             p: this.payload
         })
     }
@@ -65,11 +65,11 @@ export const parseMessage = (message: string): Message => {
     const sessionId = parsed.s
 
     switch (messageType) {
-        case MessageType.INITIAL.valueOf:
+        case MessageType.INITIAL.valueOf():
             return new InitialMessage(new SessionId(sessionId))
-        case MessageType.MESSAGE.valueOf:
+        case MessageType.MESSAGE.valueOf():
             return new ForwardMessage(new SessionId(sessionId), messagePayload)
-        case MessageType.NULL.valueOf:
+        case MessageType.NULL.valueOf():
             return new NullMessage()
         default:
             throw new ParsingError()

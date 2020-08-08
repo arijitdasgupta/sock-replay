@@ -13,21 +13,21 @@ export class MessagesRepository {
     }
 
     addSession = (sessionId: SessionId) => {
-        return promisify<string, string, any>(this.redisClient.rpush)
+        return promisify<string, string, any>(this.redisClient.rpush.bind(this.redisClient))
             (this.getKey(sessionId), new InitialMessage(sessionId).toJSONString())
         }
 
     addMessage = (message: ForwardMessage) => {
-        return promisify<string, string, any>(this.redisClient.rpush)
+        return promisify<string, string, any>(this.redisClient.rpush.bind(this.redisClient))
             (this.getKey(message.sessionId), message.toJSONString())
     }
 
     getQueueLength = (sessionId: SessionId) => {
-        return promisify<string, number>(this.redisClient.llen)(this.getKey(sessionId))
+        return promisify<string, number>(this.redisClient.llen.bind(this.redisClient))(this.getKey(sessionId))
     }
 
     getMessages = (sessionId: SessionId, horizon: number, end: number) => {
-        return promisify<string, number, number, string[]>(this.redisClient.lrange)
+        return promisify<string, number, number, string[]>(this.redisClient.lrange.bind(this.redisClient))
             (this.getKey(sessionId), horizon, end).then((messages) => {
                 return messages.map(parseMessage)
             })
@@ -35,7 +35,7 @@ export class MessagesRepository {
 
     hasSession = async (sessionId: SessionId) => {
         return !!(
-            await promisify<string, number>(this.redisClient.llen)(this.getKey(sessionId))
+            await promisify<string, number>(this.redisClient.llen.bind(this.redisClient))(this.getKey(sessionId))
         )
     }
 }

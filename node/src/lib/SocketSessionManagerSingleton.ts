@@ -42,12 +42,13 @@ export class SocketSessionManagerSingleton {
                 return from(this.messagesRepo.getMessages(horizon.sessionId, horizon.horizon, end - 1)
                     .then((messages) => ({messages, horizon})))
             }),
-            flatMap(({ messages, horizon}) => {
+            flatMap(({ messages, horizon }) => {
                 return from(messages.map(message => ({message, horizon})))
             }),
         ).subscribe(({message, horizon}) => {
-            horizon.socket.send("msg", message.toJSONString())
-            this.logger.debug(`Sent message to ${horizon.sessionId.id}`)
+            const msg = message.toJSONString()
+            horizon.socket.emit("msg", msg)
+            this.logger.debug(`Sent message ${msg} to ${horizon.sessionId.id}`)
         })
         this.logger.info("Started ticker")
     }
