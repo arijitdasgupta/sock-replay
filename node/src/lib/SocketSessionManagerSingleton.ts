@@ -117,6 +117,12 @@ export class SocketSessionManagerSingleton {
                     this.forwardService.forward(new InitialMessage(newSesh))
                 } else if (parsedMessage.messageType === MessageType.INITIAL) {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
+
+                        // Closing the existing socket if there is any
+                        if (this.socketMap.get(parsedMessage.sessionId.id)) {
+                            this.socketMap.get(parsedMessage.sessionId.id).socket.close()
+                        }
+
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
                         this.forwardService.forward(parsedMessage)
                     } else {
