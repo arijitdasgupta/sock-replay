@@ -12,6 +12,7 @@ import { SocketApp } from "./socket/SocketApp"
 import { SocketSessionManagerSingleton } from "./lib/SocketSessionManagerSingleton"
 import { PushService } from "./lib/PushService"
 import { MessagesRepository } from "./db/MessagesRepository"
+import { ForwardService } from "./lib/ForwardService"
 import { Redis } from "./redis/Redis"
 
 const run = async () => {
@@ -30,7 +31,8 @@ const run = async () => {
     // Deps
     const redis = new Redis(config, logger)
     const messagesRepository = new MessagesRepository(config, logger, redis.client)
-    const socketSessionManager = new SocketSessionManagerSingleton(config, logger, metrics, messagesRepository)
+    const forwardService = new ForwardService(config, logger)
+    const socketSessionManager = new SocketSessionManagerSingleton(config, logger, metrics, messagesRepository, forwardService)
     const pushService = new PushService(messagesRepository, socketSessionManager)
 
     // Initiate the socket application

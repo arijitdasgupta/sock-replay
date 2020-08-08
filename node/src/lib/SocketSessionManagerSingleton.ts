@@ -6,10 +6,11 @@ import prom from "prom-client"
 import { v4 as uuidv4 } from "uuid";
 import { Metrics } from "../metrics/Metrics";
 import { MessagesRepository } from "../db/MessagesRepository";
-import { parseMessage, MessageType, SessionId } from "../../../common/lib/messages";
+import { parseMessage, MessageType, SessionId, DisconnectMessage } from "../../../common/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
 import { SocketSessionNotFound, SocketNotAttached } from "../utils/errors"
+import { ForwardService } from "./ForwardService"
 
 export class SocketSessionManagerSingleton {
     private socketMap: Map<string, SocketHorizon>
@@ -19,7 +20,7 @@ export class SocketSessionManagerSingleton {
     private uninitiatedSocketDropCounter: prom.Counter<string> 
     private className = "SocketSessionManagerSingleton"
 
-    constructor(private config: Config, private logger: Logger, metrics: Metrics, private messagesRepo: MessagesRepository) {
+    constructor(private config: Config, private logger: Logger, metrics: Metrics, private messagesRepo: MessagesRepository, private forwardService: ForwardService) {
         this.socketMap = new Map<string, SocketHorizon>()
         this.badSocketCounter = metrics.getCounter("bad_socket_counter", "Bad sockets")
         this.unknownSocketCounter = metrics.getCounter("unknown_socket_counter", "Unknown sockets")
@@ -84,6 +85,7 @@ export class SocketSessionManagerSingleton {
             this.socketMap.delete(sessionId)
             this.droppedSocketCounter.inc()
             this.logger.info(`Dropping session ${sessionId}`)
+            this.forwardService.forward(new DisconnectMessage(new SessionId(sessionId)))
         } catch(e) {
             throw new SocketNotAttached()
         }
@@ -107,15 +109,20 @@ export class SocketSessionManagerSingleton {
                     const newSesh = this.newSession()
                     await this.messagesRepo.addSession(newSesh)
                     this.socketMap.set(newSesh.id, new SocketHorizon(socket, newSesh))
+                    this.forwardService.forward(parsedMessage)
                 } else if (parsedMessage.messageType === MessageType.INITIAL) {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
+                        this.forwardService.forward(parsedMessage)
                     } else {
                         this.unknownSocketCounter.inc()
                         socket.close() // Drops connection if the session is unknown
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
-                    // TODO: Forward messages
+                    if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
+                        this.logger.debug(`Forwarding message ${parsedMessage.toJSONString()}`)
+                        this.forwardService.forward(parsedMessage)
+                    }
                 }
             } catch (e) {
                 this.logger.error(e)
@@ -128,7 +135,6 @@ export class SocketSessionManagerSingleton {
             } catch (e) {
                 this.uninitiatedSocketDropCounter.inc()
             }
-            
         })
     }
 }

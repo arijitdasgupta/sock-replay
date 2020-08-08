@@ -31,7 +31,18 @@ export class NullMessage implements Message {
 }
 
 export class DisconnectMessage implements Message {
+    public messageType = MessageType.DISCONNECTED
+    public payload: null = null
 
+    constructor(public sessionId: SessionId) {}
+
+    toJSONString = () => {
+        return JSON.stringify({
+            t: this.messageType.valueOf(),
+            s: null,
+            p: null
+        })
+    }
 }
 
 export class InitialMessage implements Message {
