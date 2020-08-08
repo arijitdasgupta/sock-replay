@@ -16,17 +16,22 @@ export class ForwardService {
     constructor(private config: Config, private logger: Logger) {}
 
     private makeRequest = (forwardType: string, message: Message) => {
-        return fetch(this.config.webHook, {
-            method: 'post',
-            body: message.payload,
-            headers: new Headers(
-                [
-                    ['Content-Type', 'application/text'],
-                    [this.SESSION_ID_HEADER, message.sessionId.id],
-                    [this.TYPE_HEADER, forwardType]
-                ]
-            )
-        })
+        if (this.config.webHook.trim() !== '') {
+            return fetch(this.config.webHook, {
+                method: 'post',
+                body: message.payload,
+                headers: new Headers(
+                    [
+                        ['Content-Type', 'application/text'],
+                        [this.SESSION_ID_HEADER, message.sessionId.id],
+                        [this.TYPE_HEADER, forwardType]
+                    ]
+                )
+            })
+        } else {
+            this.logger.debug("No webhook is set!")
+            return Promise.resolve()
+        }
     }
 
     forward = (message: Message) => {

@@ -6,7 +6,7 @@ import prom from "prom-client"
 import { v4 as uuidv4 } from "uuid";
 import { Metrics } from "../metrics/Metrics";
 import { MessagesRepository } from "../db/MessagesRepository";
-import { parseMessage, MessageType, SessionId, DisconnectMessage } from "../../../common/lib/messages";
+import { parseMessage, MessageType, SessionId, DisconnectMessage, ForwardMessage, InitialMessage } from "../../../common/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
 import { SocketSessionNotFound, SocketNotAttached } from "../utils/errors"
@@ -110,7 +110,7 @@ export class SocketSessionManagerSingleton {
                     const newSesh = this.newSession()
                     await this.messagesRepo.addSession(newSesh)
                     this.socketMap.set(newSesh.id, new SocketHorizon(socket, newSesh))
-                    this.forwardService.forward(parsedMessage)
+                    this.forwardService.forward(new InitialMessage(newSesh))
                 } else if (parsedMessage.messageType === MessageType.INITIAL) {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
