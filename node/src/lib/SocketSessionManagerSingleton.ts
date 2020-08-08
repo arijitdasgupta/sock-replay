@@ -13,12 +13,16 @@ import { SessionNotFound } from "../utils/errors"
 
 export class SocketSessionManagerSingleton {
     private socketMap: Map<string, SocketHorizon>
-    private disconnectedSocketCounter: prom.Counter<string> // TODO: Implement usage
+    private badSocketCounter: prom.Counter<string> 
+    private unknownSocketCounter: prom.Counter<string> 
+    private droppedSocketCounter: prom.Counter<string> 
     private className = "SocketSessionManagerSingleton"
 
     constructor(private config: Config, private logger: Logger, metrics: Metrics, private messagesRepo: MessagesRepository) {
         this.socketMap = new Map<string, SocketHorizon>()
-        this.disconnectedSocketCounter = metrics.getCounter("disconnected_socket_push", "Attempts to emit to disconnected socket")
+        this.badSocketCounter = metrics.getCounter("bad_socket_counter", "Bad sockets")
+        this.unknownSocketCounter = metrics.getCounter("unknown_socket_counter", "Unknown sockets")
+        this.droppedSocketCounter = metrics.getCounter("dropped_socket_counter", "Sockets dropped")
         this.logger = this.logger.child({class: this.className})
     }
 
@@ -61,9 +65,18 @@ export class SocketSessionManagerSingleton {
         
     }
 
+    dropSession = (socket: WebSocket) => {
+        const [sessionId, _socket] = Array.from(this.socketMap.entries()).
+            find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
+        this.socketMap.delete(sessionId)
+        this.droppedSocketCounter.inc()
+        this.logger.info(`Dropping session ${sessionId}`)
+    }
+
     attach = (socket: WebSocket) => {
         const dropSocketTimer = setTimeout(() => {
             this.logger.debug("Dropping socket due to inactivity")
+            this.badSocketCounter.inc()
             socket.close()
         }, this.config.dropSocketTimeout)
 
@@ -82,6 +95,7 @@ export class SocketSessionManagerSingleton {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
                     } else {
+                        this.unknownSocketCounter.inc()
                         socket.close() // Drops connection if the session is unknown
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
@@ -90,6 +104,10 @@ export class SocketSessionManagerSingleton {
             } catch (e) {
                 this.logger.error(e)
             }
+        })
+
+        socket.on("close", async () => {
+            this.dropSession(socket)
         })
     }
 }
