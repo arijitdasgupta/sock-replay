@@ -14,7 +14,7 @@ export interface Message {
     messageType: MessageType
     sessionId: null | SessionId
     payload: null | string;
-    toJSONString: () => string;
+    toJSONString: () => string
 }
 
 export class NullMessage implements Message {

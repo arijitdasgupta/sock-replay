@@ -13,4 +13,12 @@ export class PushService {
             data
         ))
     }
+
+    async deleteSession(sessiondId: SessionId) {
+        return this.messagesRepo.deleteSession(sessiondId)
+    }
+
+    async clearSession(sessiondId: SessionId) {
+        return this.messagesRepo.clearSession(sessiondId)
+    }
 }

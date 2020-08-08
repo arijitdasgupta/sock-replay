@@ -12,6 +12,16 @@ export class MessagesRepository {
         return `${this.config.messagesNamespace}:${sessionId.id}`
     }
 
+    clearSession = (sessionId: SessionId) => {
+        return promisify<string, number, number, any>(this.redisClient.ltrim.bind(this.redisClient))
+            (this.getKey(sessionId), 0, 0)
+    }
+
+    deleteSession = (sessionId: SessionId) => {
+        return promisify<string, any>(this.redisClient.del.bind(this.redisClient))
+            (this.getKey(sessionId))
+    }
+
     addSession = (sessionId: SessionId) => {
         return promisify<string, string, any>(this.redisClient.rpush.bind(this.redisClient))
             (this.getKey(sessionId), new InitialMessage(sessionId).toJSONString())

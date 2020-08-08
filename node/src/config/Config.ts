@@ -8,6 +8,7 @@ export class Config {
     public redisHost: string;
     public messagesNamespace: string;
     public tickerInterval: number;
+    public dropSocketTimeout: number;
 
     constructor(env: any) {
         this.serviceName = env.SERVICE_NAME || "sock-replay"
@@ -17,5 +18,6 @@ export class Config {
         this.redisPort = isNaN(env.REDIS_PORT) ? 6379 : parseInt(env.REDIS_PO)
         this.tickerInterval = 1000 // TODO push to ENV
         this.messagesNamespace = "session" // TODO push to ENV
+        this.dropSocketTimeout = 10000
     } 
 }

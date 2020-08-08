@@ -22,6 +22,7 @@ export class SocketApp {
 
         io.on("connection", (socket) => {
             this.logger.debug("Socket connected")
+            
             this.sessionManager.attach(socket)
         })
 

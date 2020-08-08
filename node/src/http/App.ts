@@ -26,7 +26,6 @@ export class App {
         this.setRoutes(this.app)
     }
 
-    // TODO: Refactor it out somewhere else
     private handleErrors(err: CustomErrors, res: express.Response) {
         if (err.errorType == ErrorTypes.SESSION_NOT_FOUND) {
             res.status(400).send(err.message)
@@ -41,9 +40,32 @@ export class App {
     }
 
     private setRoutes(app: express.Application) {
+        app.delete("/push/:sessionId", async (req: express.Request, res: express.Response) => {
+            const sid = req.params.sessionId
+            try {
+                this.logger.debug(`HTTP Delete: ${sid}`)
+                await this.pushService.deleteSession(new SessionId(sid))
+                this.handleOk(res)
+            } catch (e) {
+                this.handleErrors(e, res)
+            }
+        })
+
+        app.purge("/push/:sessionId", async (req: express.Request, res: express.Response) => {
+            const sid = req.params.sessionId
+            try {
+                this.logger.debug(`HTTP Purge: ${sid}`)
+                await this.pushService.clearSession(new SessionId(sid))
+                this.handleOk(res)
+            } catch (e) {
+                this.handleErrors(e, res)
+            }
+        })
+
         app.post("/push/:sessionId", async (req: express.Request, res: express.Response) => {
             const sid = req.params.sessionId
             try {
+                this.logger.debug(`HTTP Post: ${sid}`)
                 await this.pushService.pushToSession(new SessionId(sid), req.body)
                 this.handleOk(res)
             } catch (e) {

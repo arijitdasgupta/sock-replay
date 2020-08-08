@@ -41,6 +41,7 @@ const run = async () => {
     const app = new App(config, logger, metrics, pushService)
 
     await app.run()
+    socketSessionManager.run()
 
     return { logger }
 }

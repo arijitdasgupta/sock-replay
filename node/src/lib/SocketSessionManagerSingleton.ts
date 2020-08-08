@@ -19,15 +19,13 @@ export class SocketSessionManagerSingleton {
         this.socketMap = new Map<string, SocketHorizon>()
         this.disconnectedSocketCounter = metrics.getCounter("disconnected_socket_push", "Attempts to emit to disconnected socket")
         this.logger = this.logger.child({class: this.className})
-        
-        this.run()
     }
 
     private newSession = () => {
         return new SessionId(uuidv4())
     }
 
-    private run = () => { // TODO: Clean up, tidy...
+    run = () => { // TODO: Clean up, tidy...
         interval(this.config.tickerInterval).pipe(
             flatMap(() => from(this.socketMap.entries())),
             map(([_key, horizon]) => horizon),
@@ -54,10 +52,17 @@ export class SocketSessionManagerSingleton {
     }
 
     attach = (socket: Socket) => {
+        const dropSocketTimer = setTimeout(() => {
+            this.logger.debug("Dropping socket due to inactivity")
+            socket.disconnect()
+        }, this.config.dropSocketTimeout)
+
         socket.on("msg", async (message) => {
             try {
                 this.logger.info(`Got message: ${message}`)
                 const parsedMessage = parseMessage(message)
+
+                clearTimeout(dropSocketTimer)
 
                 if (parsedMessage.messageType === MessageType.NULL) {
                     const newSesh = this.newSession()
