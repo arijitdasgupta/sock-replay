@@ -9,7 +9,7 @@ import { MessagesRepository } from "../db/MessagesRepository";
 import { parseMessage, MessageType, SessionId } from "../../../common/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
-import { SessionNotFound } from "../utils/errors"
+import { SocketSessionNotFound } from "../utils/errors"
 
 export class SocketSessionManagerSingleton {
     private socketMap: Map<string, SocketHorizon>
@@ -57,12 +57,22 @@ export class SocketSessionManagerSingleton {
     }
 
     resetHorizon = (sessionId: SessionId) => {
-        try {
+        if (this.socketMap.get(sessionId.id)) {
             this.socketMap.set(sessionId.id, this.socketMap.get(sessionId.id).setHorizon(0))
-        } catch (e) {
-            throw new SessionNotFound(sessionId)
+        } else {
+            throw new SocketSessionNotFound(sessionId)
         }
-        
+    }
+
+    closeSocketBySessionId = (sessionId: SessionId) => {
+        if (this.socketMap.get(sessionId.id)) {
+            const socketHorizon = this.socketMap.get(sessionId.id)
+            this.socketMap.delete(sessionId.id)
+            socketHorizon.socket.close()
+            this.logger.info(`Closing session ${sessionId}`)
+        } else {
+            throw new SocketSessionNotFound(sessionId)
+        }
     }
 
     dropSession = (socket: WebSocket) => {

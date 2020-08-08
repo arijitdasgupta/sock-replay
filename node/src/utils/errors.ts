@@ -8,7 +8,7 @@ export interface CustomErrors extends Error {
     errorType: ErrorTypes
 }
 
-export class SessionNotFound extends Error implements CustomErrors {
+export class SocketSessionNotFound extends Error implements CustomErrors {
     public errorType: ErrorTypes
 
     constructor(sessionId: SessionId) {

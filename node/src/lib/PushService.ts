@@ -14,8 +14,9 @@ export class PushService {
         ))
     }
 
-    async deleteSession(sessiondId: SessionId) {
-        return this.messagesRepo.deleteSession(sessiondId)
+    async deleteSession(sessionId: SessionId) {
+        this.socketManager.closeSocketBySessionId(sessionId)
+        return this.messagesRepo.deleteSession(sessionId)
     }
 
     async clearSession(sessiondId: SessionId) {
