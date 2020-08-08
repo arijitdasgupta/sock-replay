@@ -44,8 +44,7 @@ export class MessagesRepository {
     }
 
     hasSession = async (sessionId: SessionId) => {
-        return !!(
-            await promisify<string, number>(this.redisClient.llen.bind(this.redisClient))(this.getKey(sessionId))
-        )
+        const answer = await promisify<string, number>(this.redisClient.llen.bind(this.redisClient))(this.getKey(sessionId))
+        return !!answer // LOL... 
     }
 }

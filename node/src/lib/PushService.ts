@@ -3,24 +3,37 @@ import mongo from "mongodb"
 import { MessagesRepository } from "../db/MessagesRepository"
 import { ForwardMessage, SessionId } from "../../../common/lib/messages"
 import { SocketSessionManagerSingleton } from "./SocketSessionManagerSingleton"
+import { SessionNotFound } from "../utils/errors"
 
 export class PushService {
     constructor(private messagesRepo: MessagesRepository, private socketManager: SocketSessionManagerSingleton) {}
 
     async pushToSession(sessionId: SessionId, data: string) {
-        return this.messagesRepo.addMessage(new ForwardMessage(
-            sessionId,
-            data
-        ))
+        if (await this.messagesRepo.hasSession(sessionId)) {
+            return this.messagesRepo.addMessage(new ForwardMessage(
+                sessionId,
+                data
+            ))
+        } else {
+            throw new SessionNotFound(sessionId)
+        }
     }
 
     async deleteSession(sessionId: SessionId) {
-        this.socketManager.closeSocketBySessionId(sessionId)
-        return this.messagesRepo.deleteSession(sessionId)
+        if (await this.messagesRepo.hasSession(sessionId)) {
+            this.socketManager.closeSocketBySessionId(sessionId)
+            return this.messagesRepo.deleteSession(sessionId)
+        } else {
+            throw new SessionNotFound(sessionId)
+        }
     }
 
-    async clearSession(sessiondId: SessionId) {
-        this.socketManager.resetHorizon(sessiondId)
-        return this.messagesRepo.clearSession(sessiondId)
+    async clearSession(sessionId: SessionId) {
+        if (await this.messagesRepo.hasSession(sessionId)) {
+            this.socketManager.resetHorizon(sessionId)
+            return this.messagesRepo.clearSession(sessionId)
+        } else {
+            throw new SessionNotFound(sessionId)
+        }
     }
 }
