@@ -7,7 +7,8 @@ export class SessionId {
 export enum MessageType {
     INITIAL,
     MESSAGE,
-    NULL
+    NULL,
+    DISCONNECTED
 }
 
 export interface Message {
@@ -27,6 +28,10 @@ export class NullMessage implements Message {
         s: null,
         p: null
     })
+}
+
+export class DisconnectMessage implements Message {
+
 }
 
 export class InitialMessage implements Message {

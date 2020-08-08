@@ -7,6 +7,7 @@ export class Config {
     public redisPort: number;
     public redisHost: string;
     public messagesNamespace: string;
+    public webHook: string;
     public tickerInterval: number;
     public dropSocketTimeout: number;
 
@@ -19,5 +20,6 @@ export class Config {
         this.tickerInterval = 1000 // TODO push to ENV
         this.messagesNamespace = "session" // TODO push to ENV
         this.dropSocketTimeout = 10000 // TODO push to ENV
+        this.webHook = env.FORWARD_WEBHOOK || ""
     } 
 }
