@@ -82,7 +82,7 @@ export class SocketSessionManagerSingleton {
     dropSession = (socket: WebSocket) => {
         try {
             const [sessionId] = Array.from(this.socketMap.entries()).
-            find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
+                find(([_sid, socketHorizon]) => socketHorizon.socket === socket)
             this.socketMap.delete(sessionId)
             this.droppedSocketCounter.inc()
             this.logger.info(`Dropping session ${sessionId}`)
@@ -129,7 +129,7 @@ export class SocketSessionManagerSingleton {
                     }
                 }
             } catch (e) {
-                this.logger.error(e)
+                this.logger.warn(e)
             }
         })
 
