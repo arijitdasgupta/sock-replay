@@ -120,9 +120,12 @@ export class SocketSessionManagerSingleton {
                         socket.close() // Drops connection if the session is unknown
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
-                    if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
+                    if (this.socketMap.get(parsedMessage.sessionId.id) && await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.logger.debug(`Forwarding message ${parsedMessage.toJSONString()}`)
                         this.forwardService.forward(parsedMessage)
+                    } else {
+                        this.unknownSocketCounter.inc()
+                        socket.close()
                     }
                 }
             } catch (e) {
