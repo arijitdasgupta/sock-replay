@@ -3,7 +3,7 @@ import mongo from "mongodb"
 import { MessagesRepository } from "../db/MessagesRepository"
 import { ForwardMessage, SessionId } from "../../../common/lib/messages"
 import { SocketSessionManagerSingleton } from "./SocketSessionManagerSingleton"
-import { SessionNotFound } from "../utils/errors"
+import { SessionNotFound, SocketSessionNotFound } from "../utils/errors"
 
 export class PushService {
     constructor(private messagesRepo: MessagesRepository, private socketManager: SocketSessionManagerSingleton) {}

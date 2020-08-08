@@ -61,6 +61,7 @@ export class SocketSessionManagerSingleton {
 
     resetHorizon = (sessionId: SessionId) => {
         if (this.socketMap.get(sessionId.id)) {
+            this.logger.debug(`Resseting horizong ${sessionId.id}`)
             this.socketMap.set(sessionId.id, this.socketMap.get(sessionId.id).setHorizon(0))
         } else {
             throw new SocketSessionNotFound(sessionId)
@@ -72,7 +73,7 @@ export class SocketSessionManagerSingleton {
             const socketHorizon = this.socketMap.get(sessionId.id)
             this.socketMap.delete(sessionId.id)
             socketHorizon.socket.close()
-            this.logger.info(`Closing session ${sessionId}`)
+            this.logger.debug(`Closing session ${sessionId.id}`)
         } else {
             throw new SocketSessionNotFound(sessionId)
         }
