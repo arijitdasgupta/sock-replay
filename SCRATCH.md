@@ -10,7 +10,9 @@
  - [ ] In case of HTTP, response types
  - [x] Change to WebSocket
  - [ ] Add all the env vars
- - [ ] Make horizontally scalable
+ - [ ] Replace webhooks with queues
+ - [ ] -Make horizontally scalable-
  - [ ] Rewrite in Elixir
+
 
  Testing URL: https://jsfiddle.net/rivalslayer/d80oqke7/
