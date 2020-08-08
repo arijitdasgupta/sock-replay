@@ -1,7 +1,7 @@
 import prom from "prom-client"
 import Logger from "bunyan"
 import http from "http"
-import socketio from "socket.io"
+import WebSocket from "ws"
 import express from "express"
 
 import { Metrics } from "../metrics/Metrics";
@@ -16,11 +16,10 @@ export class SocketApp {
     }
 
     public async run() {
-        const app = express()
-        const server = http.createServer(app)
-        const io = socketio(server)
+        const server = http.createServer()
+        const wsServer = new WebSocket.Server({ server })
 
-        io.on("connection", (socket) => {
+        wsServer.on("connection", (socket) => {
             this.logger.debug("Socket connected")
             
             this.sessionManager.attach(socket)

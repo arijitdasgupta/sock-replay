@@ -1,4 +1,4 @@
-import socketio, { Socket } from "socket.io"
+import WebSocket from "ws"
 import { interval, from } from "rxjs"
 import { flatMap, map, tap } from "rxjs/operators"
 import Logger from "bunyan"
@@ -45,22 +45,22 @@ export class SocketSessionManagerSingleton {
             }),
         ).subscribe(({message, horizon}) => {
             const msg = message.toJSONString()
-            horizon.socket.emit("msg", msg)
+            horizon.socket.send(msg)
             this.logger.debug(`Sent message ${msg} to ${horizon.sessionId.id}`)
         })
         this.logger.info("Started ticker")
     }
 
-    attach = (socket: Socket) => {
+    attach = (socket: WebSocket) => {
         const dropSocketTimer = setTimeout(() => {
             this.logger.debug("Dropping socket due to inactivity")
-            socket.disconnect()
+            socket.close()
         }, this.config.dropSocketTimeout)
 
-        socket.on("msg", async (message) => {
+        socket.on("message", async (message) => {
             try {
                 this.logger.info(`Got message: ${message}`)
-                const parsedMessage = parseMessage(message)
+                const parsedMessage = parseMessage(message.toString("utf-8"))
 
                 clearTimeout(dropSocketTimer)
 
@@ -72,7 +72,7 @@ export class SocketSessionManagerSingleton {
                     if (await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.socketMap.set(parsedMessage.sessionId.id, new SocketHorizon(socket, parsedMessage.sessionId))
                     } else {
-                        socket.disconnect() // Drops connection if the session is unknown to the instance
+                        socket.close() // Drops connection if the session is unknown to the instance
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
                     // TODO: Forward messages
