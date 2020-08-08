@@ -92,6 +92,10 @@ export class SocketSessionManagerSingleton {
         }
     }
 
+    private doesSessionBelongToTheSocket = (sessionId: SessionId) => {
+        return true // TODO
+    }
+
     attach = (socket: WebSocket) => {
         const dropSocketTimer = setTimeout(() => {
             this.logger.debug("Dropping socket due to inactivity")
@@ -120,7 +124,7 @@ export class SocketSessionManagerSingleton {
                         socket.close() // Drops connection if the session is unknown
                     }
                 } else if (parsedMessage.messageType === MessageType.MESSAGE) {
-                    if (this.socketMap.get(parsedMessage.sessionId.id) && await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
+                    if (this.doesSessionBelongToTheSocket(parsedMessage.sessionId) && await this.messagesRepo.hasSession(parsedMessage.sessionId)) {
                         this.logger.debug(`Forwarding message ${parsedMessage.toJSONString()}`)
                         this.forwardService.forward(parsedMessage)
                     } else {

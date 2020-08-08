@@ -14,6 +14,7 @@
  - [ ] Write docs (cuz the code sucks)
  - [ ] -Make horizontally scalable-
  - [ ] Rewrite in Elixir
+ - [ ] Does session belong to the socket?
 
 Currently not scalable, because
  1. The HTTP requests will fail to drop the socket if the associated session is not attached to that instance.
