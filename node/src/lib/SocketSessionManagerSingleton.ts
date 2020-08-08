@@ -9,6 +9,7 @@ import { MessagesRepository } from "../db/MessagesRepository";
 import { parseMessage, MessageType, SessionId } from "../../../common/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
+import { SessionNotFound } from "../utils/errors"
 
 export class SocketSessionManagerSingleton {
     private socketMap: Map<string, SocketHorizon>
@@ -51,7 +52,14 @@ export class SocketSessionManagerSingleton {
         this.logger.info("Started ticker")
     }
 
-    resetHorizon = (sessionId: SessionId) => this.socketMap.set(sessionId.id, this.socketMap.get(sessionId.id).setHorizon(0))
+    resetHorizon = (sessionId: SessionId) => {
+        try {
+            this.socketMap.set(sessionId.id, this.socketMap.get(sessionId.id).setHorizon(0))
+        } catch (e) {
+            throw new SessionNotFound(sessionId)
+        }
+        
+    }
 
     attach = (socket: WebSocket) => {
         const dropSocketTimer = setTimeout(() => {
@@ -61,7 +69,7 @@ export class SocketSessionManagerSingleton {
 
         socket.on("message", async (message) => {
             try {
-                this.logger.info(`Got message: ${message}`)
+                this.logger.debug(`Got message: ${message}`)
                 const parsedMessage = parseMessage(message.toString("utf-8"))
 
                 clearTimeout(dropSocketTimer)

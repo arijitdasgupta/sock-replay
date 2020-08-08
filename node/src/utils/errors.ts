@@ -1,3 +1,5 @@
+import { SessionId } from "../../../common/lib/messages"
+
 export enum ErrorTypes {
     SESSION_NOT_FOUND
 }
@@ -9,8 +11,8 @@ export interface CustomErrors extends Error {
 export class SessionNotFound extends Error implements CustomErrors {
     public errorType: ErrorTypes
 
-    constructor(sessionId: String) {
-        super(`Session: ${sessionId} not available`)
+    constructor(sessionId: SessionId) {
+        super(`Session: ${sessionId.id} not available`)
         this.errorType = ErrorTypes.SESSION_NOT_FOUND
     }
 }

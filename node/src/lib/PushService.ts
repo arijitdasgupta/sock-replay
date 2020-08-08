@@ -1,6 +1,5 @@
 import mongo from "mongodb"
 
-import { SessionNotFound } from "../utils/errors"
 import { MessagesRepository } from "../db/MessagesRepository"
 import { ForwardMessage, SessionId } from "../../../common/lib/messages"
 import { SocketSessionManagerSingleton } from "./SocketSessionManagerSingleton"
