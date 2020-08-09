@@ -1,4 +1,4 @@
 import Config
 
-config :ex,
+config :exreplay,
   socketPort: 9090
