@@ -5,10 +5,11 @@ export class SessionId {
 }
 
 export enum MessageType {
-    INITIAL,
-    MESSAGE,
-    NULL,
-    DISCONNECTED
+    INITIAL = "I",
+    MESSAGE = "M",
+    NULL = "N",
+    REPLAY_START = "RS",
+    REPLAT_END = "RE"
 }
 
 export interface Message {
@@ -28,21 +29,6 @@ export class NullMessage implements Message {
         s: null,
         p: null
     })
-}
-
-export class DisconnectMessage implements Message {
-    public messageType = MessageType.DISCONNECTED
-    public payload: null = null
-
-    constructor(public sessionId: SessionId) {}
-
-    toJSONString = () => {
-        return JSON.stringify({
-            t: this.messageType.valueOf(),
-            s: null,
-            p: null
-        })
-    }
 }
 
 export class InitialMessage implements Message {
@@ -74,6 +60,36 @@ export class ForwardMessage implements Message {
     }
 }
 
+export class ReplayStartMessage implements Message {
+    public messageType = MessageType.REPLAY_START
+    public payload: null = null
+
+    constructor(public sessionId: SessionId) {}
+
+    toJSONString = () => {
+        return JSON.stringify({
+            t: this.messageType.valueOf(),
+            s: this.sessionId.id,
+            p: this.payload
+        })
+    }
+}
+
+export class ReplayEndMessage implements Message {
+    public messageType = MessageType.REPLAT_END
+    public payload: null = null
+
+    constructor(public sessionId: SessionId) {}
+
+    toJSONString = () => {
+        return JSON.stringify({
+            t: this.messageType.valueOf(),
+            s: this.sessionId,
+            p: this.payload
+        })
+    }
+}
+
 export const parseMessage = (message: string): Message => {
     const parsed = JSON.parse(message)
     const messageType = parsed.t
@@ -87,6 +103,10 @@ export const parseMessage = (message: string): Message => {
             return new ForwardMessage(new SessionId(sessionId), messagePayload)
         case MessageType.NULL.valueOf():
             return new NullMessage()
+        case MessageType.REPLAY_START.valueOf():
+            return new ReplayStartMessage(new SessionId(sessionId))
+        case MessageType.REPLAT_END.valueOf():
+            return new ReplayEndMessage(new SessionId(sessionId))
         default:
             throw new ParsingError()
     }
