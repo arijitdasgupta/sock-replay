@@ -9,7 +9,6 @@ defmodule ExReplay do
 
   def start(_type, _args) do
     IO.puts("Hello World")
-
     {:ok, self()}
   end
 
