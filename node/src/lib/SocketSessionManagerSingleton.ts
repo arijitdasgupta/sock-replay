@@ -6,7 +6,7 @@ import prom from "prom-client"
 import { v4 as uuidv4 } from "uuid";
 import { Metrics } from "../metrics/Metrics";
 import { MessagesRepository } from "../db/MessagesRepository";
-import { parseMessage, MessageType, SessionId, DisconnectMessage, ForwardMessage, InitialMessage } from "../../../common/lib/messages";
+import { parseMessage, MessageType, SessionId, DisconnectMessage, ForwardMessage, InitialMessage } from "../../../web/src/lib/messages";
 import { Config } from "../config/Config";
 import { SocketHorizon } from "../utils/SocketHorizon"
 import { SocketSessionNotFound, SocketNotAttached } from "../utils/errors"

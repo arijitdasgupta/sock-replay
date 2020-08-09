@@ -3,7 +3,7 @@ import { promisify } from 'util'
 import { Config } from "../config/Config"
 import Logger from "bunyan"
 import { RedisClient } from "redis"
-import { SessionId, InitialMessage, ForwardMessage, parseMessage } from "../../../common/lib/messages"
+import { SessionId, InitialMessage, ForwardMessage, parseMessage } from "../../../web/src/lib/messages"
 
 export class MessagesRepository {
     constructor(private config: Config, private logger: Logger, private redisClient: RedisClient) {}

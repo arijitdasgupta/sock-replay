@@ -1,7 +1,7 @@
 import mongo from "mongodb"
 
 import { MessagesRepository } from "../db/MessagesRepository"
-import { ForwardMessage, SessionId } from "../../../common/lib/messages"
+import { ForwardMessage, SessionId } from "../../../web/src/lib/messages"
 import { SocketSessionManagerSingleton } from "./SocketSessionManagerSingleton"
 import { SessionNotFound, SocketSessionNotFound } from "../utils/errors"
 

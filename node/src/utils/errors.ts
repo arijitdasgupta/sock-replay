@@ -1,4 +1,4 @@
-import { SessionId } from "../../../common/lib/messages"
+import { SessionId } from "../../../web/src/lib/messages"
 
 export enum ErrorTypes {
     SOCKET_NOT_FOUND,

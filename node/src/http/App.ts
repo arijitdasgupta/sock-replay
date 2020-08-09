@@ -8,7 +8,7 @@ import { Metrics } from "../metrics/Metrics"
 
 import { PushService } from "../lib/PushService"
 import { CustomErrors, ErrorTypes, SessionNotFound } from "../utils/errors"
-import { SessionId } from "../../../common/lib/messages"
+import { SessionId } from "../../../web/src/lib/messages"
 import { MessagesRepository } from "../db/MessagesRepository"
 
 export class App {

@@ -1,5 +1,5 @@
 import WebSocket from "ws"
-import { SessionId } from "../../../common/lib/messages"
+import { SessionId } from "../../../web/src/lib/messages"
 
 export class SocketHorizon {
     constructor(public socket: WebSocket, public sessionId: SessionId, public horizon: number = 0) {}

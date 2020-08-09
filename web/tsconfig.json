@@ -10,6 +10,6 @@
         "jsx": "react"
     },
     "files": [
-        "src/main.ts",
+        "src/lib/main.ts",
     ]
 }

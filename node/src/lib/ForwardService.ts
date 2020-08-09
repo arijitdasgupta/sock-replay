@@ -2,7 +2,7 @@ import fetch, { Headers } from "node-fetch"
 
 import { Config } from '../config/Config'
 
-import { InitialMessage, ForwardMessage, Message, MessageType, SessionId, DisconnectMessage } from '../../../common/lib/messages'
+import { InitialMessage, ForwardMessage, Message, MessageType, SessionId, DisconnectMessage } from '../../../web/src/lib/messages'
 import Logger from "bunyan"
 
 export class ForwardService {
