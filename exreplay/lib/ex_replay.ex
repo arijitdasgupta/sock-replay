@@ -1,27 +1,19 @@
 defmodule ExReplay do
-  @moduledoc """
-  Documentation for `ExReplay`.
-  """
+  require Logger
 
-  def start do
-    start(:normal, [])
-  end
+  def start(redis_host, redis_port) do
+    Logger.info("Connecting to Redis at host: #{redis_host}, port: #{redis_port}")
 
-  def start(_type, _args) do
-    IO.puts("Hello World")
-    {:ok, self()}
-  end
 
-  @doc """
-  Hello world.
+    {:ok, conn} = Redix.start_link(host: redis_host, port: redis_port)
 
-  ## Examples
+    children = [
+      %{
+        id: "some",
+        start: {Agent, :start_link, [(fn -> [] end)]}
+      }
+    ]
 
-      iex> ExReplay.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end
