@@ -19,7 +19,7 @@ defmodule ExReplay.ExSockets do
     {[{:text, msg}], state}
   end
 
-  def websocket_info(_req, _state) do
+  def websocket_info(_into, _state) do
     Logger.info("Gone")
   end
 end

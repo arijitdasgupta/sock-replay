@@ -1,11 +1,12 @@
 defmodule ExReplay do
   require Logger
 
+  # Add option for extra handlers
   defp dispatch do
     [
       {:_, [
         {"/ws", ExReplay.ExSockets, []},
-        {:_, Plug.Adapters.Cowboy.Handler, {ExReplay.Router, []}}
+        {:_, Plug.Cowboy.Handler, {ExReplay.ExRouter, []}}
       ]}
     ]
   end
