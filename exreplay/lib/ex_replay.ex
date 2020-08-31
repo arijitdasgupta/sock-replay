@@ -21,8 +21,8 @@ defmodule ExReplay do
 
     children = [
       %{
-        id: "#{__MODULE__}.redis.connection",
-        start: {Agent, :start_link, [(fn -> Redix.start_link(host: redis_host, port: redis_port) end)]} # Redis link
+        id: ExReplay.ExSocketProces,
+        start: {ExReplay.ExSocketProcs, :start_link, []}
       },
       {Plug.Cowboy, scheme: :http, plug: ExReplay.ExPlug,  options: [port: socket_port, dispatch: dispatch()]}
     ]
